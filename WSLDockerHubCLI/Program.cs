@@ -25,7 +25,7 @@ namespace WSLDockerHubCLI
                 switch (args[0].ToLower())
                 {
                     case "download":
-                    case "d":
+                    case "dl":
                         DownloadCommand(subArgs);
                         break;
                     case "install":

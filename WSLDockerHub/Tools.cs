@@ -6,7 +6,8 @@ using System.Net.Http;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using Newtonsoft.Json.Linq;
+using System.Text.Json;
+using JsonEasyNavigation;
 
 namespace WSLDockerHub
 {
@@ -99,8 +100,9 @@ namespace WSLDockerHub
             response.EnsureSuccessStatusCode();
             string responseBody = await response.Content.ReadAsStringAsync();
 
-            var obj = JObject.Parse(responseBody);
-            var token = obj["token"].Value<string>();
+            var jDoc = JsonDocument.Parse(responseBody);
+            var jNav = jDoc.ToNavigation();
+            var token = jNav["token"].GetStringOrDefault();
 
             return token;
         }
@@ -127,20 +129,21 @@ namespace WSLDockerHub
         public static async Task<FsLayer[]> GetImageFsLayers(string imageName, string tagNameOrManifestDigest, string token, FsLayerFilter? filter = null)
         {
             string manifestRes = await GetManifest(imageName, tagNameOrManifestDigest, token);
-            JObject manifestObj = JObject.Parse(manifestRes);
+            var manifestJDoc = JsonDocument.Parse(manifestRes);
+            var manifestNav = manifestJDoc.ToNavigation();
             var fsLayers = new List<FsLayer>();
-            switch (manifestObj["mediaType"].ToString().ToLower())
+            switch (manifestNav["mediaType"].GetStringOrDefault().ToLower())
             {
                 case "application/vnd.docker.distribution.manifest.v2+json":
-                    var layers = manifestObj["layers"].Value<JArray>();
-                    foreach (JToken layer in layers)
+                    var layers = manifestNav["layers"].Values;
+                    foreach (var layer in layers)
                     {
                         try
                         {
-                            if (string.Equals(layer["mediaType"].ToString(), "application/vnd.docker.image.rootfs.diff.tar.gzip", StringComparison.OrdinalIgnoreCase))
+                            if (string.Equals(layer["mediaType"].GetStringOrDefault(), "application/vnd.docker.image.rootfs.diff.tar.gzip", StringComparison.OrdinalIgnoreCase))
                             {
-                                var layerDigest = layer["digest"].ToString();
-                                var layerSize = layer["size"].ToString();
+                                var layerDigest = layer["digest"].GetStringOrDefault();
+                                var layerSize = layer["size"].GetStringOrDefault();
 
                                 fsLayers.Add(new FsLayer
                                 {
@@ -158,17 +161,17 @@ namespace WSLDockerHub
                     }
                     break;
                 case "application/vnd.docker.distribution.manifest.list.v2+json":
-                    var manifests = manifestObj["manifests"].Value<JArray>();
+                    var manifests = manifestNav["manifests"].Values;
                     var emptyFsLayers = new List<FsLayer>();
-                    foreach (JToken manifest in manifests)
+                    foreach (var manifest in manifests)
                     {
                         try
                         {
-                            var digest = manifest["digest"].ToString();
+                            var digest = manifest["digest"].GetStringOrDefault();
                             // 可能不具备这些属性
-                            var os = manifest["platform"]?["os"]?.ToString();
-                            var architecture = manifest["platform"]?["architecture"]?.ToString();
-                            var variant = manifest["platform"]?["variant"]?.ToString();
+                            var os = manifest["platform"]["os"].GetStringOrDefault();
+                            var architecture = manifest["platform"]["architecture"].GetStringOrDefault();
+                            var variant = manifest["platform"]["variant"].GetStringOrDefault();
                             emptyFsLayers.Add(new FsLayer
                             {
                                 manifestDigest = digest,

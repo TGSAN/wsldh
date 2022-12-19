@@ -7,7 +7,7 @@ Commands:
   help, h
     Display this help.
 
-  download, d
+  download, dl
     Download Docker image(s) from Docker Hub Registry.
 
       Usage: wsldh download <image><:tag|@digest> [options] [filters]
