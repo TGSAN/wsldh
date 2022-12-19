@@ -89,37 +89,19 @@ namespace WSLDockerHub
             
             stderrStream.Close();
 
+            // Re-run to print logs
+            if (process.ExitCode != 0)
+            {
+                process.Start();
+                var stdoutStream = Console.OpenStandardOutput();
+                process.StandardOutput.BaseStream.CopyToAsync(stdoutStream);
+                process.WaitForExit();
+                stdoutStream.Close();
+            }
+            
             //Console.WriteLine("Code: " + process.ExitCode);
             return process.ExitCode == 0;
         }
-
-        //public static bool Unregister(string distName)
-        //{
-        //    var process = new Process();
-        //    process.StartInfo.FileName = "wsl";
-        //    process.StartInfo.Arguments = $"--unregister \"{distName}\"";
-        //    process.StartInfo.StandardOutputEncoding = Encoding.GetEncoding("UTF-16LE");
-        //    process.StartInfo.StandardErrorEncoding = Encoding.GetEncoding("UTF-16LE");
-        //    process.StartInfo.CreateNoWindow = true;
-        //    process.StartInfo.UseShellExecute = false;
-        //    process.StartInfo.RedirectStandardOutput = true;
-        //    process.StartInfo.RedirectStandardError = true;
-        //    process.Start();
-
-        //    var stdoutStream = Console.OpenStandardOutput();
-        //    var stderrStream = Console.OpenStandardError();
-
-        //    process.StandardOutput.BaseStream.CopyToAsync(stdoutStream);
-        //    process.StandardError.BaseStream.CopyToAsync(stderrStream);
-
-        //    process.WaitForExit();
-
-        //    stdoutStream.Close();
-        //    stderrStream.Close();
-
-        //    //Console.WriteLine("Code: " + process.ExitCode);
-        //    return process.ExitCode == 0;
-        //}
 
         public static bool Command(string args)
         {

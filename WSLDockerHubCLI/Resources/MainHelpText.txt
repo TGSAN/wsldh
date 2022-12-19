@@ -1,4 +1,4 @@
-WSL Docker Hub CLI
+WSL Docker Hub CLI - A utility for deploying images from Docker Hub to WSL
 
 Usage: wsldh [command] [options]
 
@@ -52,3 +52,28 @@ Commands:
         CPU architecture filter. (eg: arm64)
       --variant <variant>
         CPU variant filter. (eg: v8)
+
+  export
+    Export WSL rootfs (.tar) or Docker image (.tar.gz) form WSL.
+
+    Usage: wsldh export <distribution name> [options]
+
+    Example:
+      wsldh export Ubuntu-Latest --output .\output\ubuntu.tar.gz --compress
+
+    Options:
+      --output, -o <path>
+        (Required) Output file path.
+      --compress, -c
+        Use GZip to compress.
+
+  list, ls
+    List all installed distribution of WSL.
+
+  remove, rm
+	Remove a distribution from WSL.
+
+	Usage: wsldh remove <distribution name>
+
+	Example:
+	  wsldh remove Ubuntu-Latest

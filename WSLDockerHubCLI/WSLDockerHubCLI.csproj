@@ -6,10 +6,13 @@
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
 		<AssemblyName>wsldh</AssemblyName>
-		<PublishAot>true</PublishAot>
-		<IlcOptimizationPreference>Size</IlcOptimizationPreference>
-		<StaticICULinking>true</StaticICULinking>
-		<StaticallyLinked>true</StaticallyLinked>
+		<Authors>TGSAN</Authors>
+		<Copyright>Copyright © TGSAN 2023</Copyright>
+		<Product>WSL Docker Hub CLI</Product>
+		<AssemblyTitle>A utility for deploying images from Docker Hub to WSL</AssemblyTitle>
+		<Version>1.1.0</Version>
+		<FileVersion>$(Version)</FileVersion>
+		<AssemblyVersion>$(Version)</AssemblyVersion>
 	</PropertyGroup>
 
 	<ItemGroup>
