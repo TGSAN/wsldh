@@ -1,9 +1,29 @@
-# WSL Docker Hub CLI
-A utility for deploying images from Docker Hub to WSL.
+<br>
+
+<p align="center">
+    <img src="https://store-images.s-microsoft.com/image/apps.61786.14131597032361940.38d2a067-3798-455f-934a-f69935156b3d.eb49d3ac-e311-4e6f-b89b-f1fe8db9d73b" width="100px">
+</p>
+
+<h3 align="center"><b>> WSLDH _</b></h3>
+
+<h1 align="center">
+  WSL Docker Hub CLI
+</h1>
+
+<h3 align="center">A utility for deploying images from Docker Hub to WSL.</h3>
+
+<p align="center">
+    <a href="https://github.com/TGSAN/wsldh/releases/latest">
+        <img src="https://img.shields.io/github/downloads/TGSAN/wsldh/total?style=for-the-badge">
+    </a>
+    <a href="https://github.com/TGSAN/wsldh/releases/latest">
+        <img src="https://img.shields.io/github/v/release/TGSAN/wsldh?style=for-the-badge&include_prereleases">
+    </a>
+</p>
 
 # Requirements
 - Windows 10/11  
-- Windows Subsystem for Linux ([ Click me to install :) ](https://www.microsoft.com/store/productId/9P9TQF7MRM4R))  
+- Windows Subsystem for Linux - [ Click me to install :) ](https://www.microsoft.com/store/productId/9P9TQF7MRM4R)  
 
 # Get Started
 1. Pick the system image you want on [Docker Hub](https://hub.docker.com/search?q=).  
