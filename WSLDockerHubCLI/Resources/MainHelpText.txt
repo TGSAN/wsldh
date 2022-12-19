@@ -1,0 +1,54 @@
+WSL Docker Hub CLI
+
+Usage: wsldh [command] [options]
+
+Commands:
+
+  help, h
+    Display this help.
+
+  download, d
+    Download Docker image(s) from Docker Hub Registry.
+
+      Usage: wsldh download <image><:tag|@digest> [options] [filters]
+			
+      Example:
+        wsldh download ubuntu:latest --output .\output\
+        wsldh download ubuntu@sha256:965fbcae990b0467ed5657caceaec165018ef44a4d2d46c7cdea80a9dff0d1ea --output .\output\
+
+      Options:
+        --output, -o <path>
+          (Required) Output directory.
+        --all, -a
+          Download all selected images. (default: download first image only)
+
+      Filters:
+        --os <os>
+          Operating system filter. (eg: linux)
+        --arch <arch>
+          CPU architecture filter. (eg: arm64)
+        --variant <variant>
+          CPU variant filter. (eg: v8)
+
+  install, i
+    Install a Docker image to WSL form Docker Hub Registry.
+
+    Usage: wsldh install <image><:tag|@digest> [options] [filters]
+
+    Example:
+      wsldh install ubuntu:latest --name Ubuntu-Latest --dir .\WSLRootFS\Ubuntu\
+      wsldh install ubuntu@sha256:965fbcae990b0467ed5657caceaec165018ef44a4d2d46c7cdea80a9dff0d1ea --name Ubuntu-Latest --dir .\WSLRootFS\Ubuntu\
+
+    Options:
+      --name, -n <name>
+        (Required) Custom linux distribution name.
+      --dir, -d <path>
+        (Required) Linux rootfs install location.
+
+    Filters:
+      --os <os>
+        Operating system filter. (eg: linux)
+      --arch <arch>
+        CPU architecture filter. (eg: arm64)
+      --variant <variant>
+        CPU variant filter. (eg: v8)
