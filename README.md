@@ -51,7 +51,7 @@ Or
 - Download Docker image(s) from Docker Hub Registry. (without install)  
 - Install a Docker image to WSL form Docker Hub Registry.  
 - Export WSL rootfs (.tar) or Docker image (.tar.gz) form WSL.  
-- Simply management of WSL.  
+- Simple management for WSL.  
 
 # Usage
 ```
