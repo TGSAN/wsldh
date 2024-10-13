@@ -115,6 +115,8 @@ namespace WSLDockerHub
             clientHandler.ServerCertificateCustomValidationCallback = (sender, cert, chain, sslPolicyErrors) => { return true; };
             var client = new HttpClient(clientHandler);
             client.DefaultRequestHeaders.Add("Authorization", "Bearer " + token);
+            client.DefaultRequestHeaders.Add("Accept", "application/vnd.oci.image.index.v1+json");
+            client.DefaultRequestHeaders.Add("Accept", "application/vnd.oci.image.manifest.v1+json");
             client.DefaultRequestHeaders.Add("Accept", "application/vnd.docker.distribution.manifest.v2+json");
             client.DefaultRequestHeaders.Add("Accept", "application/vnd.docker.distribution.manifest.list.v2+json");
             var response = await client.GetAsync(url);
@@ -132,80 +134,89 @@ namespace WSLDockerHub
             var manifestJDoc = JsonDocument.Parse(manifestRes);
             var manifestNav = manifestJDoc.ToNavigation();
             var fsLayers = new List<FsLayer>();
-            switch (manifestNav["mediaType"].GetStringOrDefault().ToLower())
+            var mediaType = manifestNav["mediaType"].GetStringOrDefault().ToLower();
+            switch (mediaType)
             {
+                case "application/vnd.oci.image.manifest.v1+json":
                 case "application/vnd.docker.distribution.manifest.v2+json":
-                    var layers = manifestNav["layers"].Values;
-                    foreach (var layer in layers)
                     {
-                        try
+                        var layers = manifestNav["layers"].Values;
+                        foreach (var layer in layers)
                         {
-                            if (string.Equals(layer["mediaType"].GetStringOrDefault(), "application/vnd.docker.image.rootfs.diff.tar.gzip", StringComparison.OrdinalIgnoreCase))
+                            try
                             {
-                                var layerDigest = layer["digest"].GetStringOrDefault();
-                                var layerSize = layer["size"].GetStringOrDefault();
-
-                                fsLayers.Add(new FsLayer
+                                var layerMediaType = layer["mediaType"].GetStringOrDefault();
+                                if (string.Equals(layerMediaType, "application/vnd.docker.image.rootfs.diff.tar.gzip", StringComparison.OrdinalIgnoreCase)
+                                    || string.Equals(layerMediaType, "application/vnd.oci.image.layer.v1.tar+gzip", StringComparison.OrdinalIgnoreCase))
                                 {
-                                    manifestDigest = tagNameOrManifestDigest,
-                                    digest = layerDigest,
-                                    size = layerSize
-                                });
-                            }
+                                    var layerDigest = layer["digest"].GetStringOrDefault();
+                                    var layerSize = layer["size"].GetStringOrDefault();
 
-                        }
-                        catch (Exception e)
-                        {
-                            Console.WriteLine("Read layers manifest failed: " + e.Message);
+                                    fsLayers.Add(new FsLayer
+                                    {
+                                        manifestDigest = tagNameOrManifestDigest,
+                                        digest = layerDigest,
+                                        size = layerSize
+                                    });
+                                }
+
+                            }
+                            catch (Exception e)
+                            {
+                                Console.WriteLine("Read layers manifest failed: " + e.Message);
+                            }
                         }
                     }
                     break;
+                case "application/vnd.oci.image.index.v1+json":
                 case "application/vnd.docker.distribution.manifest.list.v2+json":
-                    var manifests = manifestNav["manifests"].Values;
-                    var emptyFsLayers = new List<FsLayer>();
-                    foreach (var manifest in manifests)
                     {
-                        try
+                        var manifests = manifestNav["manifests"].Values;
+                        var emptyFsLayers = new List<FsLayer>();
+                        foreach (var manifest in manifests)
                         {
-                            var digest = manifest["digest"].GetStringOrDefault();
-                            // 可能不具备这些属性
-                            var os = manifest["platform"]["os"].GetStringOrDefault();
-                            var architecture = manifest["platform"]["architecture"].GetStringOrDefault();
-                            var variant = manifest["platform"]["variant"].GetStringOrDefault();
-                            emptyFsLayers.Add(new FsLayer
+                            try
                             {
-                                manifestDigest = digest,
-                                os = os,
-                                architecture = architecture,
-                                variant = variant
-                            });
-                        }
-                        catch (Exception e)
-                        {
-                            Console.WriteLine("Read tag manifest failed: " + e.Message);
-                        }
-                    }
-                    if (filter.HasValue)
-                    {
-                        var selected = SelectFsLayers(emptyFsLayers.ToArray(), filter.Value);
-                        emptyFsLayers = new List<FsLayer>(selected);
-                    }
-                    foreach (var emptyFsLayer in emptyFsLayers)
-                    {
-                        var fsLayersByManifest = await GetImageFsLayers(imageName, emptyFsLayer.manifestDigest, token);
-                        foreach (var fsLayer in fsLayersByManifest)
-                        {
-                            fsLayers.Add(new FsLayer
+                                var digest = manifest["digest"].GetStringOrDefault();
+                                // 可能不具备这些属性
+                                var os = manifest["platform"]["os"].GetStringOrDefault();
+                                var architecture = manifest["platform"]["architecture"].GetStringOrDefault();
+                                var variant = manifest["platform"]["variant"].GetStringOrDefault();
+                                emptyFsLayers.Add(new FsLayer
+                                {
+                                    manifestDigest = digest,
+                                    os = os,
+                                    architecture = architecture,
+                                    variant = variant
+                                });
+                            }
+                            catch (Exception e)
                             {
-                                // from emptyFsLayer
-                                os = emptyFsLayer.os,
-                                architecture = emptyFsLayer.architecture,
-                                variant = emptyFsLayer.variant,
-                                // from fsLayer
-                                manifestDigest = fsLayer.manifestDigest,
-                                digest = fsLayer.digest,
-                                size = fsLayer.size
-                            });
+                                Console.WriteLine("Read tag manifest failed: " + e.Message);
+                            }
+                        }
+                        if (filter.HasValue)
+                        {
+                            var selected = SelectFsLayers(emptyFsLayers.ToArray(), filter.Value);
+                            emptyFsLayers = new List<FsLayer>(selected);
+                        }
+                        foreach (var emptyFsLayer in emptyFsLayers)
+                        {
+                            var fsLayersByManifest = await GetImageFsLayers(imageName, emptyFsLayer.manifestDigest, token);
+                            foreach (var fsLayer in fsLayersByManifest)
+                            {
+                                fsLayers.Add(new FsLayer
+                                {
+                                    // from emptyFsLayer
+                                    os = emptyFsLayer.os,
+                                    architecture = emptyFsLayer.architecture,
+                                    variant = emptyFsLayer.variant,
+                                    // from fsLayer
+                                    manifestDigest = fsLayer.manifestDigest,
+                                    digest = fsLayer.digest,
+                                    size = fsLayer.size
+                                });
+                            }
                         }
                     }
                     break;

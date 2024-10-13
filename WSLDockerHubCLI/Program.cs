@@ -159,6 +159,7 @@ namespace WSLDockerHubCLI
                     Console.WriteLine("Done");
                     if (downloadAllSelected == false)
                     {
+                        Console.WriteLine("If you want to download all matching images, please add the \"--all\" or \"-a\" parameter to download everything.");
                         break;
                     }
                 }
