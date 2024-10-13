@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "WSLDockerHubCLI": {
+      "commandName": "Project",
+      "commandLineArgs": "download ubuntu:latest --output ."
+    }
+  }
+}

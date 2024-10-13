@@ -7,12 +7,13 @@
 		<Nullable>enable</Nullable>
 		<AssemblyName>wsldh</AssemblyName>
 		<Authors>TGSAN</Authors>
-		<Copyright>Copyright © TGSAN 2023</Copyright>
+		<Copyright>Copyright © TGSAN 2024</Copyright>
 		<Product>WSL Docker Hub CLI</Product>
 		<AssemblyTitle>A utility for deploying images from Docker Hub to WSL</AssemblyTitle>
-		<Version>1.1.0</Version>
+		<Version>1.2.0</Version>
 		<FileVersion>$(Version)</FileVersion>
 		<AssemblyVersion>$(Version)</AssemblyVersion>
+		<PublishAot>true</PublishAot>
 	</PropertyGroup>
 
 	<ItemGroup>
